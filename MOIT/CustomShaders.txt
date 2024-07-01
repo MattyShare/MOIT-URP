@@ -1,0 +1,100 @@
+
+Note: Amplify Shader Editor users can use the templates found in the Demo package. There are a lit and an unlit template that are based on ASE v1.9.4.4.
+They may become outdated with time but it should be pretty simple to update yourself, using the following general steps.
+
+HOW TO ADD MOIT SUPPORT TO YOUR OWN SHADERS :
+
+You need to add 2 passes to your shaders : GenerateMoments and ResolveMoments. 
+
+1. GENERATE MOMENTS
+1-1. GenerateMoments doesn't shade but only uses depth, so you can copy a simple pass such as DepthOnly so that it doesn't compute unnecessary data.
+Duplicating an existing pass makes sure that you have the layout right and not much to change.
+For ASE users, it also makes sure that you share the ports outputs from the other passes.
+
+1-2. Rename the duplicated pass to GenerateMoments and set its LightMode to GenerateMoments.
+Name "GenerateMoments"
+Tags
+{
+	"LightMode" = "GenerateMoments"
+}
+
+1-3. Set the blend to additive, don't write to depth, depth test less equal
+Blend One One
+ZWrite Off
+ZTest LEqual
+
+1-4. Add the pragmas in the HLSLPROGRAM, allowing the shader to compile the different versions for the different options
+#pragma multi_compile _MOMENT4 _MOMENT6 _MOMENT8
+#pragma multi_compile _ _TRIGONOMETRIC
+#pragma shader_feature _MOMENT_HALF_PRECISION _MOMENT_SINGLE_PRECISION
+
+1-5. Then add the includes, which contain needed functions
+#if _MOMENT_HALF_PRECISION
+#include "Assets/MOIT/ShaderLibrary/Quantization.hlsl"
+#endif
+#include "Assets/MOIT/ShaderLibrary/WarpDepth.hlsl"
+#include "Assets/MOIT/ShaderLibrary/GenerateMoments.hlsl"
+
+1-6. On your fragment function (usually "frag"), set the return type to MomentOutput (usually instead of half4), remove the ": SV_TARGET" if you have one,
+as well as the SV_DEPTH if you have one. It depends on the pass that you copied.
+MomentOutput contains all the targets needed.
+
+1-7. At the end of your fragment function, replace the return value with  
+float positionCSZ = LinearEyeDepth(IN.positionCS.z, _ZBufferParams);
+return GenerateMoments(positionCSZ, 1 - Alpha);
+
+IN is your VertexOutput, positionCS is the position in clip space. Make sure that your alpha is saturated before using it in GenerateMoments : saturate(Alpha).
+
+If you use refraction, you can force alpha to 1 but know that any transparent object behind the refracting surface will disappear. This is a limitation for normal transparent shaders as well. Hopefully we'll find a solution at some point.
+Example for ASE :
+#ifdef ASE_REFRACTION
+	Alpha = 1;
+#endif
+
+2. RESOLVE MOMENTS
+2-1. ResolveMoments shades the pixel, so you can duplicate the forward pass.
+Note for ASE users : replace /*ase_main_pass*/ with /*ase_hide_pass*/ above the pass name
+
+2-2. Rename the duplicated pass to ResolveMoments and set its LightMode to ResolveMoments.
+Name "ResolveMoments"
+Tags
+{
+	"LightMode" = "ResolveMoments"
+}
+
+2-3. Same as with GenerateMoments, except you can set ZWrite On if you need to do so (ie you can check if alpha is high enough, write to depth ; requires SV_Depth or SVDepthLessEqual target)
+Blend One One
+ZWrite Off
+ZTest LEqual
+
+2-4. Add the pragmas
+#pragma multi_compile _MOMENT4 _MOMENT6 _MOMENT8
+#pragma multi_compile _ _TRIGONOMETRIC
+#pragma shader_feature _MOMENT_HALF_PRECISION _MOMENT_SINGLE_PRECISION
+
+2-5. Add the includes
+#if _MOMENT_HALF_PRECISION
+#include "Assets/MOIT/ShaderLibrary/Quantization.hlsl"
+#endif
+#include "Assets/MOIT/ShaderLibrary/MomentMath.hlsl"
+#include "Assets/MOIT/ShaderLibrary/TrigonometricMomentMath.hlsl"
+#include "Assets/MOIT/ShaderLibrary/WarpDepth.hlsl"
+#include "Assets/MOIT/ShaderLibrary/ResolveMoments.hlsl"
+
+2-6. At the end of your fragment function, replace the return value with
+float positionCSZ = LinearEyeDepth(IN.positionCS.z, _ZBufferParams);
+float td, tt;
+ResolveMoments(td, tt, positionCSZ, IN.positionCS.xy * _B0_TexelSize.xy);
+color.rgb *= color.a;
+color *= td;
+return color;
+
+where color is the shaded color (typically after half4 color = UniversalFragmentPBR(inputData, surfaceData); and all the modifications you'd want to apply to it such as fog, transmission, translucency...)
+
+2-7. Optional :
+Add an _Overestimation property, float, range (0,1), default value 0.25
+For ASE users, you can add a port such as
+float _Overestimation = /*ase_frag_out:Overestimation;Float;21;-1;_MOITData*/0.25/*end*/;
+before calling ResolveMoments, and passing a float from your shader editor into the new port.
+
+This is an optional step because the 0.25 default value is already set in ResolveMoments.hlsl and it is the recommended value by the research paper, so you will probably never want to change it.

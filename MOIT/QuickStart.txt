@@ -1,0 +1,13 @@
+
+- QUICK START :
+1. In a Unity 6 URP project,
+2. Open the Project Settings, Tags and Layers tab, and add a TransparentMOIT layer in any available User Layer. You can make more according to your project's needs.
+3. Find your Universal Renderer Data and add a Moment Based Order Independent Transparency Feature.
+4. Assign the MOIT Settings and Bias Settings scriptable objects in the Feature. There are examples in the MOIT folder. The bias settings use the recommended values from the paper.
+5. Assign the layer(s) you created at step 2 in the MOITSettings Layer Mask field and remove them from the Transparent Layer Mask on your Universal Renderer Data.
+This will prevent drawing transparent objects twice, once as MOIT and once as normal transparent.
+6. Any transparent object must be on the TransparentMOIT layer(s) to be rendered by the MOIT Feature. If not, they will be rendered as normal transparent (if they have a forward pass)
+
+
+- Note : you can get shader examples from the releases tab or the demo package
+Included shaders : ASE templates (Lit and Unlit), lit, unlit, Text Mesh Pro.

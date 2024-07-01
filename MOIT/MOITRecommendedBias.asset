@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ad990e0e92175f48adc24f941fed1aa, type: 3}
+  m_Name: MOITRecommendedBias
+  m_EditorClassIdentifier: 
+  Moments4Half: 0.00006
+  Moments4Single: 0.0000005
+  Moments6Half: 0.0006
+  Moments6Single: 0.000005
+  Moments8Half: 0.0025
+  Moments8Single: 0.00005
+  Trigonometric2Half: 0.0004
+  Trigonometric2Single: 0.0000004
+  Trigonometric3Half: 0.00065
+  Trigonometric3Single: 0.0000008
+  Trigonometric4Half: 0.00085
+  Trigonometric4Single: 0.0000015
