@@ -9,8 +9,9 @@ A Renderer Feature implementing Moment Based Order Independent Transparency for 
 
 [https://github.com/MattyShare/MOIT-URP/assets/173833411/1fbdecd9-5dad-4238-918d-0450dccec323](https://github.com/MattyShare/MOIT-URP/assets/173833411/cf80efca-ac9e-468e-9248-a2f2d1e1bf5c)
 
-All videos have been recorded with the lowest quality mode.
+[More videos](README.md#more-videos)
 
+All videos have been recorded with the lowest quality mode.
 
 # How does it work?
 Each MOIT object is rendered twice (2 passes) then the result is composited over the screen in a fullscreen third pass. This is heavier than normal transparency.
@@ -99,6 +100,9 @@ Custom must share, share alike variant of the BSD-3 license.
 
 
 # More videos
+
+[(back to top)](README.md#moit-urp)
+
 > [!NOTE]
 > Normal transparency and MOIT are not supposed to be used at the same time as they are different passes that can't know each other's depth.
 > In the following comparison recordings, the transparent pass happens after and will always render on top.
