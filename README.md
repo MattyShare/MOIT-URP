@@ -11,22 +11,28 @@ A Renderer Feature implementing Moment Based Order Independent Transparency for 
 
 All videos have been recorded with the lowest quality mode.
 
-The recommended quality modes (in single precision) are :
-* 4 power moments
-* 3 trigonometric moments
-* 4 trigonometric moments
 
-These 3 seem to have the best quality to performance ratios according to [the paper](https://momentsingraphics.de/I3D2018.html).
-Higher quality modes get rid of color blending between overlapping transparent objects, at the expense of performance and/or memory.
-It is possible to switch quality modes in runtime, an options menu, for cutscenes...
+# How does it work?
+Each MOIT object is rendered twice (2 passes) then the result is composited over the screen in a fullscreen third pass. This is heavier than normal transparency.
+1. Generate Moments Pass additively draws all MOIT objects in MRT (Multiple Render Targets, like how the GBuffer gets rendered).
+   * First texture gets the sum of transmittance of all pixels.
+   * Second (and third if >4 moments) gets the sum of depth moments. With power moments, it is the depth for the first channel, depth squared for the second, depth cubed for the third etc. More complex for trigonometric.
+2. Resolve Moments Pass additively draws all MOIT objects shaded in a texture.
+   * Using the sum of transmittance and the sum of moments of all objects in the pixel (from the previous pass), it does the complex big brain paper math to compute the object's contribution to the pixel.
+3. Composite Pass alpha blends the result on the screen.
 
 
 # Features
 * Order independent transparency
 * Several quality modes
+  * Higher quality modes get rid of color blending between overlapping transparent objects, at the expense of performance and/or memory
+  * Recommended : 4 power moments, 3 trigonometric, 4 trigonometric ; from more performant to more quality. 4 power moments is fine for real time gameplay
+  * Quality can be changed at runtime, so you can switch to higher quality for cutscenes or zones that showcase a lot of transparents
 * Includes templates for Amplify Shader Editor
 * Shader examples, and step by step tutorial to implement MOIT support to your shaders
-* Demo scenes 
+* Demo scenes
+  * Separate download because of size, can be found in releases tab
+  * Import "Demo" folder into "MOIT" folder and follow the instructions from DemoReadme
 
 
 # Requirements
@@ -53,7 +59,7 @@ Custom must share, share alike variant of the BSD-3 license.
 > [!WARNING]
 > **Please note the license requires licensees to share their improvements to this library for free, and under this license.**
 > * Does the license apply to bigger works?
->   * You only have to share the improvements you made to the library, not your whole game/app/etc.
+>   * You only have to share the improvements you made to the library (this includes additional files), not your whole game/app/asset/etc.
 > * How to share?
 >   * However feels the best for you. As an example, small contributions can be a text message in Issues, bigger changes can be Pull Requests, forks, another repository...
 > * What is meant by "in good faith"?
@@ -69,6 +75,7 @@ Custom must share, share alike variant of the BSD-3 license.
 * This implementation uses a Renderer Feature. This makes it easier to import in a project to try it out, but straight up replacing the transparent pass would probably be better. Which requires modifying URP files, making it harder to update Unity version.
 * As this project is experimental, did not implement non render graph compatibility mode.
 * Has the same limitations as normal transparency for refracting objects (the closest refracting object hides other transparents behind)
+* Does not instantly work with existing shaders, requires adding 2 specific passes to shaders.
 
 
 # Future works
@@ -101,7 +108,7 @@ Custom must share, share alike variant of the BSD-3 license.
 
 https://github.com/MattyShare/MOIT-URP/assets/173833411/ceb8eb98-0b4b-4eff-9bba-2c9a8b101d42
 
-* Quads : 
+  * Quads : 
 
 https://github.com/MattyShare/MOIT-URP/assets/173833411/b5f248c7-b115-4cab-a3bf-1cd5100443be
 
