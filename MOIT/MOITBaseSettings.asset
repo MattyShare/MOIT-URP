@@ -15,12 +15,13 @@ MonoBehaviour:
   momentsCount: 4
   momentPrecision: 32
   trigonometric: 0
+  boundsType: 1
+  onlyVisibleRenderers: 0
   layerMask:
     serializedVersion: 2
     m_Bits: 1024
-  renderQueueMin: 4501
-  renderQueueMax: 5000
-  boundsType: 1
+  renderQueueMin: 2501
+  renderQueueMax: 3000
   compositeMaterial: {fileID: 2100000, guid: fbb17749d992c2e449b71efcffd5c6fa, type: 2}
   sortBackToFront: 0
   debugMakeMOITTexGlobal: 0

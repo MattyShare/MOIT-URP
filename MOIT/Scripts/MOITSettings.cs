@@ -18,7 +18,7 @@ public class MOITSettings : ScriptableObject
     [Header("Rendering")]
     [Tooltip("Works with Everything but usually MOIT objects should be set on specific layers that are removed from the Transparent Layer Mask (in Universal Renderer Data) to prevent double rendering")]
     public LayerMask layerMask = Physics.AllLayers;
-    [Tooltip("Set a different RenderQueueRange than default Transparent")]
+    [Tooltip("Can stay the same as default Transparent if you use different layers")]
     public int renderQueueMin = 2501;
     public int renderQueueMax = 3000;
     public Material compositeMaterial;
